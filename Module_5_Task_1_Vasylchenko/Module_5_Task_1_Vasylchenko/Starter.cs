@@ -1,98 +1,75 @@
-﻿using System;
-using System.Net;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
-using Module_5_Task_1_Vasylchenko.Models;
 using Module_5_Task_1_Vasylchenko.Models.ModelsFour;
 using Module_5_Task_1_Vasylchenko.Models.ModelsOne;
 using Module_5_Task_1_Vasylchenko.Models.ModelsThree;
 using Module_5_Task_1_Vasylchenko.Models.ModelsTwo;
 using Module_5_Task_1_Vasylchenko.Services;
+using Module_5_Task_1_Vasylchenko.Services.InterfaceServisec;
 
 namespace Module_5_Task_1_Vasylchenko
 {
     public class Starter
     {
-        public async Task Run()
+        private readonly IRequestsService _requests;
+        private readonly HttpMethod _httpMethodDelete = HttpMethod.Delete;
+        private readonly HttpMethod _httpMethodGet = HttpMethod.Get;
+        private readonly HttpMethod _httpMethodPost = HttpMethod.Post;
+        private readonly HttpMethod _httpMethodPut = HttpMethod.Put;
+        private readonly HttpMethod _httpMethodPatch = HttpMethod.Patch;
+        public Starter()
         {
-            var r = new RequestsService();
-            var httpStatusOk = HttpStatusCode.OK;
-            var methodGet = HttpMethod.Get;
-            await r.SendAsync<ResponseOne>(httpStatusOk, methodGet, "https://reqres.in/api/users?page=2");
+            _requests = LocatorService.RequestsService;
+            _httpMethodDelete = HttpMethod.Delete;
+            _httpMethodGet = HttpMethod.Get;
+            _httpMethodPost = HttpMethod.Post;
+            _httpMethodPut = HttpMethod.Put;
+            _httpMethodPatch = HttpMethod.Patch;
+        }
 
-            await r.SendAsync<ResponseTwo>(httpStatusOk, methodGet, "https://reqres.in/api/users/2");
+        public void Run()
+        {
+            Task.Run(async () => await _requests.SendAsync<ResponseOne>(_httpMethodGet, "/api/users?page=2"));
 
-            await r.SendAsync<ResponseFour>(httpStatusOk, methodGet, "https://reqres.in/api/users/23");
+            Task.Run(async () => await _requests.SendAsync<ResponseTwo>(_httpMethodGet, "/api/users/2"));
 
-            await r.SendAsync<ResponseOne>(httpStatusOk, methodGet, "https://reqres.in/api/unknown");
+            Task.Run(async () => await _requests.SendAsync<ResponseFour>(_httpMethodGet, "/api/users/23"));
 
-            await r.SendAsync<ResponseTwo>(httpStatusOk, methodGet, "https://reqres.in/api/unknown/2");
+            Task.Run(async () => await _requests.SendAsync<ResponseOne>(_httpMethodGet, "/api/unknown"));
 
-            await r.SendAsync<ResponseTwo>(httpStatusOk, methodGet, "https://reqres.in/api/unknown/23");
+            Task.Run(async () => await _requests.SendAsync<ResponseTwo>(_httpMethodGet, "/api/unknown/2"));
 
-            httpStatusOk = HttpStatusCode.Created;
-            methodGet = HttpMethod.Post;
-            var payloadOne = new
-            {
-                name = "morpheus",
-                job = "leader"
-            };
+            Task.Run(async () => await _requests.SendAsync<ResponseTwo>(_httpMethodGet, "/api/unknown/23"));
 
-            await r.SendAsync<ResponseThree>(httpStatusOk, methodGet, "https://reqres.in/api/users", payloadOne);
+            var payloadOne = new RequestThree { Name = "morpheus", Job = "leader" };
 
-            httpStatusOk = HttpStatusCode.OK;
-            methodGet = HttpMethod.Put;
-            var payloadTwo = new
-            {
-                name = "morpheus",
-                job = "zion resident"
-            };
+            Task.Run(async () => await _requests.SendAsync<ResponseThree>(_httpMethodPost, "/api/users", payloadOne));
 
-            await r.SendAsync<ResponseThree>(httpStatusOk, methodGet, "https://reqres.in/api/users/2", payloadTwo);
+            var payloadTwo = new RequestThree { Name = "morpheus", Job = "zion resident" };
 
-            methodGet = HttpMethod.Patch;
-            await r.SendAsync<ResponseThree>(httpStatusOk, methodGet, "https://reqres.in/api/users/2", payloadTwo);
+            Task.Run(async () => await _requests.SendAsync<ResponseThree>(_httpMethodPut, "/api/users/2", payloadTwo));
 
-            methodGet = HttpMethod.Delete;
-            await r.SendAsync<ResponseThree>(httpStatusOk, methodGet, "https://reqres.in/api/users/2");
+            Task.Run(async () => await _requests.SendAsync<ResponseThree>(_httpMethodPatch, "/api/users/2", payloadTwo));
 
-            methodGet = HttpMethod.Post;
-            var payloadThree = new
-            {
-                email = "eve.holt@reqres.in",
-                password = "pistol"
-            };
+            Task.Run(async () => await _requests.SendAsync<ResponseThree>(_httpMethodDelete, "/api/users/2"));
 
-            await r.SendAsync<ResponseFour>(httpStatusOk, methodGet, "https://reqres.in/api/register", payloadThree);
+            var payloadThree = new RequestFour { Email = "eve.holt@reqres.in", Password = "pistol" };
 
-            httpStatusOk = HttpStatusCode.BadRequest;
-            var payloadFour = new
-            {
-                email = "sydney@fife",
-            };
+            Task.Run(async () => await _requests.SendAsync<ResponseFour>(_httpMethodPost, "/api/register", payloadThree));
 
-            await r.SendAsync<ResponseFour>(httpStatusOk, methodGet, "https://reqres.in/api/register", payloadFour);
+            var payloadFour = new RequestFour { Email = "sydney@fife" };
 
-            httpStatusOk = HttpStatusCode.OK;
-            var payloadSix = new
-            {
-                email = "eve.holt@reqres.in",
-                password = "cityslicka"
-            };
+            Task.Run(async () => await _requests.SendAsync<ResponseFour>(_httpMethodPost, "/api/register", payloadFour));
 
-            await r.SendAsync<ResponseFour>(httpStatusOk, methodGet, "https://reqres.in/api/login", payloadSix);
+            var payloadSix = new RequestFour { Email = "eve.holt@reqres.in", Password = "cityslicka" };
 
-            httpStatusOk = HttpStatusCode.BadRequest;
-            var payloadSaven = new
-            {
-                email = "eve.holt@reqres.in",
-            };
+            Task.Run(async () => await _requests.SendAsync<ResponseFour>(_httpMethodPost, "/api/login", payloadSix));
 
-            await r.SendAsync<ResponseFour>(httpStatusOk, methodGet, "https://reqres.in/api/login", payloadSaven);
+            var payloadSaven = new RequestFour { Email = "peter@klaven" };
 
-            httpStatusOk = HttpStatusCode.OK;
-            methodGet = HttpMethod.Get;
-            await r.SendAsync<ResponseOne>(httpStatusOk, methodGet, "https://reqres.in/api/users?delay=3");
+            Task.Run(async () => await _requests.SendAsync<ResponseFour>(_httpMethodPost, "/api/login", payloadSaven));
+
+            Task.Run(async () => await _requests.SendAsync<ResponseOne>(_httpMethodGet, "/api/users?delay=3"));
         }
     }
 }
