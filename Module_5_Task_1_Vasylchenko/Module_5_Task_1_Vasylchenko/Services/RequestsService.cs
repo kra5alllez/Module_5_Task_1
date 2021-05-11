@@ -11,7 +11,7 @@ namespace Module_5_Task_1_Vasylchenko.Services
 {
     public class RequestsService : IRequestsService
     {
-        private readonly Config _link;
+        private readonly Config _config;
         private readonly IConfigService _configService;
         private readonly ILoggerService _loggerService;
 
@@ -19,7 +19,7 @@ namespace Module_5_Task_1_Vasylchenko.Services
         {
             _configService = LocatorService.ConfigService;
             _loggerService = LocatorService.LoggerService;
-            _link = _configService.ReturnConfig();
+            _config = _configService.ReturnConfig();
         }
 
         public async Task<T> SendAsync<T>(HttpMethod httpMethod, string linkTwo, object obj = null)
@@ -32,7 +32,7 @@ namespace Module_5_Task_1_Vasylchenko.Services
                     httpMessage.Content = new StringContent(JsonConvert.SerializeObject(obj), Encoding.UTF8, "application/json");
                 }
 
-                httpMessage.RequestUri = new Uri(@_link.Link + linkTwo);
+                httpMessage.RequestUri = new Uri(_config.Link + linkTwo);
                 httpMessage.Method = httpMethod;
 
                 var result = await httpClient.SendAsync(httpMessage);
